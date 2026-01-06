@@ -1,13 +1,19 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { HousingModule } from './housing/housing.module';
 
-import { PeriodsModule } from './periods/periods.module';
-import { MovementsModule } from './movements/movements.module';
 import { AuthModule } from './auth/auth.module';
+
+import { UnitsModule } from './units/units.module';
+import { TransactionsModule } from './transactions/transactions.module';
+import { ExpensesModule } from './expenses/expenses.module';
+import { UploadModule } from './uploads/upload.module';
 
 @Module({
   imports: [
@@ -19,10 +25,17 @@ import { AuthModule } from './auth/auth.module';
       }),
       inject: [ConfigService],
     }),
-    HousingModule,
-    PeriodsModule,
-    MovementsModule,
+    ScheduleModule.forRoot(),
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'uploads'),
+      serveRoot: '/uploads',
+    }),
     AuthModule,
+    // New Modules
+    UnitsModule,
+    TransactionsModule,
+    ExpensesModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],
