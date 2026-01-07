@@ -14,8 +14,23 @@ export class UnitsService {
     return createdUnit.save();
   }
 
-  async findAll(): Promise<Unit[]> {
-    return this.unitModel.find().exec();
+  async findAll(
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<{ data: Unit[]; total: number; page: number; lastPage: number }> {
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.unitModel.find().skip(skip).limit(limit).exec(),
+      this.unitModel.countDocuments().exec(),
+    ]);
+
+    return {
+      data,
+      total,
+      page,
+      lastPage: Math.ceil(total / limit),
+    };
   }
 
   async findOne(id: string): Promise<Unit> {
