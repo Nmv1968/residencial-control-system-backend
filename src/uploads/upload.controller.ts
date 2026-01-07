@@ -16,10 +16,9 @@ import {
   ApiResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { FirebaseService } from 'src/services/firebase/firebase.service';
 
-// Helper for file filter
+// Helper for file filter (Mantenemos tu filtro, está perfecto)
 const fileFilter = (req, file, callback) => {
   if (!file.originalname.match(/\.(jpg|jpeg|png|pdf)$/)) {
     return callback(
@@ -35,14 +34,19 @@ const fileFilter = (req, file, callback) => {
 @ApiTags('uploads')
 @Controller('upload')
 export class UploadController {
+  // Inyectamos el servicio de Firebase
+  constructor(private readonly firebaseService: FirebaseService) {}
+
   @Post()
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
-  @ApiOperation({ summary: 'Upload a file (image/pdf)' })
+  @ApiOperation({ summary: 'Upload a file to Firebase Storage' })
   @ApiResponse({
     status: 201,
     description: 'File uploaded successfully',
-    schema: { example: { url: '/uploads/file.png' } },
+    schema: {
+      example: { url: 'https://storage.googleapis.com/tu-bucket/imagen.png' },
+    },
   })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -56,27 +60,24 @@ export class UploadController {
       },
     },
   })
+  // CAMBIO CLAVE AQUÍ:
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './uploads',
-        filename: (req, file, callback) => {
-          const uniqueSuffix =
-            Date.now() + '-' + Math.round(Math.random() * 1e9);
-          const ext = extname(file.originalname);
-          callback(null, `${uniqueSuffix}${ext}`);
-        },
-      }),
+      // Al quitar 'storage', Multer usa memoryStorage por defecto.
+      // Esto nos da acceso a file.buffer
       fileFilter: fileFilter,
+      limits: { fileSize: 5 * 1024 * 1024 }, // Opcional: Limite de 5MB por seguridad
     }),
   )
-  uploadFile(@UploadedFile() file: Express.Multer.File) {
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
       throw new BadRequestException('File is not provided');
     }
-    // Return relative path or full URL.
-    // Assuming static serve on root or /uploads.
-    // I will return the path relative to the static root.
-    return { url: `/uploads/${file.filename}` };
+
+    // Llamamos al servicio que sube el buffer a la nube
+    const url = await this.firebaseService.uploadFile(file);
+
+    // Retornamos la URL absoluta de internet
+    return { url: url };
   }
 }
