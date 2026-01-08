@@ -9,7 +9,6 @@ import {
   TransactionType,
 } from './schemas/transaction.schema';
 import { Unit, UnitDocument } from '../units/schemas/unit.schema';
-import { Expense, ExpenseDocument } from '../expenses/schemas/expense.schema';
 
 @Injectable()
 export class TransactionsService {
@@ -17,7 +16,6 @@ export class TransactionsService {
     @InjectModel(Transaction.name)
     private transactionModel: Model<TransactionDocument>,
     @InjectModel(Unit.name) private unitModel: Model<UnitDocument>,
-    @InjectModel(Expense.name) private expenseModel: Model<ExpenseDocument>,
   ) {}
 
   async create(
@@ -29,23 +27,28 @@ export class TransactionsService {
 
     // Side effects on Unit Balance
     if (createTransactionDto.tipo === TransactionType.PAGO) {
-      // Payment: Reduce debt (subtract from balance)
-      await this.unitModel
-        .updateOne(
-          { _id: createTransactionDto.unidad },
-          { $inc: { saldoActual: -createTransactionDto.monto } },
-        )
-        .exec();
+      if (createTransactionDto.unidad) {
+        // Payment: Reduce debt (subtract from balance)
+        await this.unitModel
+          .updateOne(
+            { _id: createTransactionDto.unidad },
+            { $inc: { saldoActual: -createTransactionDto.monto } },
+          )
+          .exec();
+      }
     } else if (createTransactionDto.tipo === TransactionType.CARGO_MENSUAL) {
-      // Charge: Increase debt (add to balance)
-      await this.unitModel
-        .updateOne(
-          { _id: createTransactionDto.unidad },
-          { $inc: { saldoActual: createTransactionDto.monto } },
-        )
-        .exec();
+      if (createTransactionDto.unidad) {
+        // Charge: Increase debt (add to balance)
+        await this.unitModel
+          .updateOne(
+            { _id: createTransactionDto.unidad },
+            { $inc: { saldoActual: createTransactionDto.monto } },
+          )
+          .exec();
+      }
     }
-    // AJUSTE logic can be added here if defined (e.g. based on positive/negative amount)
+    // GASTO (Expense) and AJUSTE logic do not strictly require balance updates on Unit unless specified.
+    // GASTO is usually global or unit-less, but if linked to logic, can be added here.
 
     return transaction;
   }
@@ -108,10 +111,11 @@ export class TransactionsService {
     ]);
     const totalCollected = paymentsAggregation[0]?.total || 0;
 
-    // 2. Total Spent (Expenses) this month
-    const expensesAggregation = await this.expenseModel.aggregate([
+    // 2. Total Spent (GASTO) this month
+    const expensesAggregation = await this.transactionModel.aggregate([
       {
         $match: {
+          tipo: TransactionType.GASTO,
           fecha: { $gte: startOfMonth, $lte: endOfMonth },
         },
       },

@@ -13,10 +13,23 @@ import { ApiProperty } from '@nestjs/swagger';
 import { TransactionType } from '../schemas/transaction.schema';
 
 export class CreateTransactionDto {
-  @ApiProperty({ example: '63f...', description: 'MongoID of the Unit' })
+  @ApiProperty({
+    example: '63f...',
+    description: 'MongoID of the Unit',
+    required: false,
+  })
   @IsMongoId()
-  @IsNotEmpty()
-  unidad: string;
+  @IsOptional()
+  unidad?: string;
+
+  @ApiProperty({
+    example: 'Electric Company',
+    description: 'Provider Name',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  proveedor?: string;
 
   @ApiProperty({ enum: TransactionType, example: TransactionType.PAGO })
   @IsEnum(TransactionType)

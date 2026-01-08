@@ -12,7 +12,6 @@ import { AuthModule } from './auth/auth.module';
 
 import { UnitsModule } from './units/units.module';
 import { TransactionsModule } from './transactions/transactions.module';
-import { ExpensesModule } from './expenses/expenses.module';
 import { UploadModule } from './uploads/upload.module';
 
 @Module({
@@ -34,7 +33,6 @@ import { UploadModule } from './uploads/upload.module';
     // New Modules
     UnitsModule,
     TransactionsModule,
-    ExpensesModule,
     UploadModule,
   ],
   controllers: [AppController],

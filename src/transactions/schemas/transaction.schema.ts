@@ -8,11 +8,12 @@ export enum TransactionType {
   CARGO_MENSUAL = 'CARGO_MENSUAL',
   PAGO = 'PAGO',
   AJUSTE = 'AJUSTE',
+  GASTO = 'GASTO',
 }
 
 @Schema({ timestamps: true })
 export class Transaction {
-  @Prop({ type: Types.ObjectId, ref: 'Unit', required: true })
+  @Prop({ type: Types.ObjectId, ref: 'Unit', required: false })
   unidad: Unit;
 
   @Prop({ required: true, enum: TransactionType })
@@ -23,6 +24,9 @@ export class Transaction {
 
   @Prop({ required: true })
   descripcion: string;
+
+  @Prop({ required: false })
+  proveedor: string;
 
   @Prop({ required: true, default: Date.now, index: true })
   fecha: Date;
