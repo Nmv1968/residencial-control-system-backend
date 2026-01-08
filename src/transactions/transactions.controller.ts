@@ -39,6 +39,14 @@ export class TransactionsController {
     return this.transactionsService.findOne(id);
   }
 
+  @Post(':id/reverse')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({ summary: 'Reverse a transaction' })
+  reverse(@Param('id') id: string) {
+    return this.transactionsService.reverse(id);
+  }
+
   @Get('dashboard')
   @ApiOperation({ summary: 'Get monthly dashboard statistics' })
   @ApiResponse({

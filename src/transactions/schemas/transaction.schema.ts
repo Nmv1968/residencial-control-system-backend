@@ -33,6 +33,9 @@ export class Transaction {
 
   @Prop()
   evidenciaUrl: string;
+
+  @Prop({ default: false })
+  isReversed: boolean;
 }
 
 export const TransactionSchema = SchemaFactory.createForClass(Transaction);

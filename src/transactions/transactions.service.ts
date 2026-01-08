@@ -72,6 +72,41 @@ export class TransactionsService {
     return transaction;
   }
 
+  async reverse(id: string): Promise<Transaction> {
+    const transaction = await this.transactionModel.findById(id).exec();
+    if (!transaction) {
+      throw new Error(`Transaction with ID ${id} not found`);
+    }
+    if (transaction.isReversed) {
+      throw new Error(`Transaction is already reversed`);
+    }
+
+    // Inverse Balance Logic
+    if (transaction.tipo === TransactionType.PAGO && transaction.unidad) {
+      // Reversing a Payment -> Increase Debt (Add back to balance)
+      await this.unitModel
+        .updateOne(
+          { _id: transaction.unidad },
+          { $inc: { saldoActual: transaction.monto } },
+        )
+        .exec();
+    } else if (
+      transaction.tipo === TransactionType.CARGO_MENSUAL &&
+      transaction.unidad
+    ) {
+      // Reversing a Charge -> Decrease Debt (Subtract from balance)
+      await this.unitModel
+        .updateOne(
+          { _id: transaction.unidad },
+          { $inc: { saldoActual: -transaction.monto } },
+        )
+        .exec();
+    }
+
+    transaction.isReversed = true;
+    return transaction.save();
+  }
+
   async getDashboardSummary() {
     const now = new Date();
     // Start of current month: Day 1, 00:00:00
@@ -94,11 +129,12 @@ export class TransactionsService {
       999,
     );
 
-    // 1. Total Collected (PAGO) this month
+    // 1. Total Collected (PAGO) this month (Exclude Reversed)
     const paymentsAggregation = await this.transactionModel.aggregate([
       {
         $match: {
           tipo: TransactionType.PAGO,
+          isReversed: { $ne: true },
           fecha: { $gte: startOfMonth, $lte: endOfMonth },
         },
       },
@@ -111,11 +147,12 @@ export class TransactionsService {
     ]);
     const totalCollected = paymentsAggregation[0]?.total || 0;
 
-    // 2. Total Spent (GASTO) this month
+    // 2. Total Spent (GASTO) this month (Exclude Reversed)
     const expensesAggregation = await this.transactionModel.aggregate([
       {
         $match: {
           tipo: TransactionType.GASTO,
+          isReversed: { $ne: true },
           fecha: { $gte: startOfMonth, $lte: endOfMonth },
         },
       },
