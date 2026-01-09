@@ -1,19 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import * as admin from 'firebase-admin';
-import * as path from 'path';
 
 @Injectable()
 export class FirebaseService {
   private storage: admin.storage.Storage;
 
   constructor() {
+    const adminConfig: admin.ServiceAccount = {
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY,
+    };
     // Evitamos inicializarlo dos veces si el módulo se recarga
     if (!admin.apps.length) {
-      const serviceAccount = require(path.resolve('firebase-key.json')); // Ruta a tu JSON
-
       admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
-        storageBucket: 'demoecommerce-45118223-6d7fd.firebasestorage.app', // ¡Búscalo en Firebase Console -> Storage!
+        credential: admin.credential.cert(adminConfig),
+        storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
       });
     }
     this.storage = admin.storage();
