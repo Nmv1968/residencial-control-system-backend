@@ -32,7 +32,7 @@ export class TransactionsService {
         await this.unitModel
           .updateOne(
             { _id: createTransactionDto.unidad },
-            { $inc: { saldoActual: -createTransactionDto.monto } },
+            { $inc: { balance: -createTransactionDto.monto } },
           )
           .exec();
       }
@@ -42,7 +42,7 @@ export class TransactionsService {
         await this.unitModel
           .updateOne(
             { _id: createTransactionDto.unidad },
-            { $inc: { saldoActual: createTransactionDto.monto } },
+            { $inc: { balance: createTransactionDto.monto } },
           )
           .exec();
       }
@@ -87,7 +87,7 @@ export class TransactionsService {
       await this.unitModel
         .updateOne(
           { _id: transaction.unidad },
-          { $inc: { saldoActual: transaction.monto } },
+          { $inc: { balance: transaction.monto } },
         )
         .exec();
     } else if (
@@ -98,7 +98,7 @@ export class TransactionsService {
       await this.unitModel
         .updateOne(
           { _id: transaction.unidad },
-          { $inc: { saldoActual: -transaction.monto } },
+          { $inc: { balance: -transaction.monto } },
         )
         .exec();
     }
@@ -167,7 +167,7 @@ export class TransactionsService {
 
     // 3. Units with Debt (saldoActual > 0)
     const unitsInDebt = await this.unitModel
-      .find({ saldoActual: { $gt: 0 } })
+      .find({ balance: { $gt: 0 } })
       .exec();
 
     return {
@@ -194,32 +194,7 @@ export class TransactionsService {
   // Runs at 00:00 on day-of-month 1
   @Cron('0 0 1 * *')
   async generateMonthlyCharges() {
-    const units = await this.unitModel.find({}).exec(); // Filter by active status if exists
-    console.log(
-      `Starting monthly charges generation for ${units.length} units...`,
-    );
-
-    for (const unit of units) {
-      if (unit.tarifaMensual > 0) {
-        const transactionDto: CreateTransactionDto = {
-          unidad: unit._id as any,
-          tipo: TransactionType.CARGO_MENSUAL,
-          monto: unit.tarifaMensual,
-          descripcion: `Cargo Mensual - ${new Date().toLocaleString('default', { month: 'long', year: 'numeric' })}`,
-          fecha: new Date().toISOString(),
-        };
-
-        // Reuse create logic which handles balance update
-        try {
-          await this.create(transactionDto);
-        } catch (error) {
-          console.error(
-            `Error generating charge for unit ${unit.nombre}:`,
-            error,
-          );
-        }
-      }
-    }
-    console.log('Monthly charges generation completed.');
+    // DEPRECATED: New Financial System uses Debts Module
+    console.log('Legacy Monthly Charges Generation is deprecated.');
   }
 }

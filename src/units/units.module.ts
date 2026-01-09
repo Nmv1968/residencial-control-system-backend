@@ -10,6 +10,6 @@ import { Unit, UnitSchema } from './schemas/unit.schema';
   ],
   controllers: [UnitsController],
   providers: [UnitsService],
-  exports: [UnitsService], // Exported for use in Transactions/Cron
+  exports: [UnitsService, MongooseModule], // Exported for use in Transactions/Cron and other modules
 })
 export class UnitsModule {}

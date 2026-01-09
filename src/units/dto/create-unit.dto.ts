@@ -1,53 +1,47 @@
 import {
   IsEnum,
+  IsMongoId,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
-  Min,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { UnitType } from '../schemas/unit.schema';
+import { UnitStatus } from '../schemas/unit.schema';
 
 export class CreateUnitDto {
   @ApiProperty({
-    example: 'Casa 101',
-    description: 'Unique name/number of the unit',
+    example: 'A-101',
+    description: 'Unique number/identifier of the unit',
   })
   @IsString()
   @IsNotEmpty()
-  nombre: string;
-
-  @ApiProperty({ enum: UnitType, example: UnitType.CASA })
-  @IsEnum(UnitType)
-  @IsNotEmpty()
-  tipo: UnitType;
-
-  @ApiProperty({
-    example: 50.0,
-    description: 'Monthly fee for the unit',
-    minimum: 0,
-  })
-  @IsNumber()
-  @Min(0)
-  @IsNotEmpty()
-  tarifaMensual: number;
-
-  @ApiProperty({
-    example: 0,
-    description: 'Current balance (debt positive, credit negative)',
-    required: false,
-  })
-  @IsOptional()
-  @IsNumber()
-  saldoActual?: number;
+  number: string;
 
   @ApiProperty({
     example: 'Juan Perez',
-    description: 'Name of the owner',
+  })
+  @IsString()
+  @IsOptional()
+  residentName?: string;
+
+  @ApiProperty({
+    example: '555-1234',
     required: false,
   })
-  @IsOptional()
   @IsString()
-  propietario?: string;
+  @IsOptional()
+  phone?: string;
+
+  @ApiProperty({ enum: UnitStatus, example: UnitStatus.OCCUPIED })
+  @IsEnum(UnitStatus)
+  @IsNotEmpty()
+  status: UnitStatus;
+
+  @ApiProperty({
+    example: '60d0fe4f5311236168a109ca',
+    description: 'Category ID',
+  })
+  @IsMongoId()
+  @IsNotEmpty()
+  categoryId: string;
 }

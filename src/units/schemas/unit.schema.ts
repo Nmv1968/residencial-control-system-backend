@@ -1,30 +1,38 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
+import { Category } from '../../categories/schemas/category.schema';
 
 export type UnitDocument = Unit & Document;
 
-export enum UnitType {
-  CASA = 'CASA',
-  LOCAL = 'LOCAL',
-  PARQUEADERO = 'PARQUEADERO',
+export enum UnitStatus {
+  OCCUPIED = 'OCCUPIED',
+  VACANT = 'VACANT',
+  MAINTENANCE = 'MAINTENANCE',
 }
 
-@Schema({ timestamps: true })
+@Schema({
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true },
+})
 export class Unit {
-  @Prop({ required: true, unique: true })
-  nombre: string;
-
-  @Prop({ required: true, enum: UnitType })
-  tipo: UnitType;
-
-  @Prop({ required: true, min: 0 })
-  tarifaMensual: number;
-
-  @Prop({ default: 0 })
-  saldoActual: number;
+  @Prop({ required: true, unique: true, index: true })
+  number: string;
 
   @Prop()
-  propietario: string;
+  residentName: string;
+
+  @Prop()
+  phone: string;
+
+  @Prop({ required: true, enum: UnitStatus, default: UnitStatus.OCCUPIED })
+  status: UnitStatus;
+
+  @Prop({ default: 0 })
+  balance: number;
+
+  @Prop({ type: Types.ObjectId, ref: 'Category', required: true })
+  category: Category | Types.ObjectId;
 }
 
 export const UnitSchema = SchemaFactory.createForClass(Unit);

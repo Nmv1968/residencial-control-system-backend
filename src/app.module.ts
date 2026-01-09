@@ -13,6 +13,10 @@ import { AuthModule } from './auth/auth.module';
 import { UnitsModule } from './units/units.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { UploadModule } from './uploads/upload.module';
+import { CategoriesModule } from './categories/categories.module';
+import { PaymentMethodsModule } from './payment-methods/payment-methods.module';
+import { DebtsModule } from './debts/debts.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
@@ -34,6 +38,10 @@ import { UploadModule } from './uploads/upload.module';
     UnitsModule,
     TransactionsModule,
     UploadModule,
+    CategoriesModule,
+    PaymentMethodsModule,
+    DebtsModule,
+    PaymentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
