@@ -21,7 +21,14 @@ export class PaymentMethodsService {
   }
 
   async findAll(): Promise<PaymentMethod[]> {
-    return this.paymentMethodModel.find({ isActive: true }).exec();
+    return this.paymentMethodModel.find().exec();
+  }
+
+  async findOne(id: string): Promise<PaymentMethod> {
+    const method = await this.paymentMethodModel.findById(id).exec();
+    if (!method)
+      throw new NotFoundException(`PaymentMethod with ID ${id} not found`);
+    return method;
   }
 
   async update(

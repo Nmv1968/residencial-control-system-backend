@@ -14,6 +14,24 @@ export class PaymentMethod {
 
   @Prop({ default: true })
   isActive: boolean;
+
+  @Prop({ default: false })
+  isBank: boolean;
+
+  @Prop()
+  bankName?: string;
+
+  @Prop()
+  accountNumber?: string;
+
+  @Prop()
+  accountHolder?: string;
+
+  @Prop({ enum: ['SAVINGS', 'CURRENT'] })
+  accountType?: string;
+
+  @Prop()
+  additionalData?: string;
 }
 
 export const PaymentMethodSchema = SchemaFactory.createForClass(PaymentMethod);

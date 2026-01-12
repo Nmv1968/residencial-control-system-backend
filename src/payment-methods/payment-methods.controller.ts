@@ -33,6 +33,12 @@ export class PaymentMethodsController {
     return this.service.findAll();
   }
 
+  @Get(':id')
+  @ApiOperation({ summary: 'Get payment method by id' })
+  findOne(@Param('id') id: string) {
+    return this.service.findOne(id);
+  }
+
   @Patch(':id')
   @ApiOperation({ summary: 'Update payment method' })
   update(@Param('id') id: string, @Body() updateDto: UpdatePaymentMethodDto) {

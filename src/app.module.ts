@@ -18,6 +18,8 @@ import { PaymentMethodsModule } from './payment-methods/payment-methods.module';
 import { DebtsModule } from './debts/debts.module';
 import { PaymentsModule } from './payments/payments.module';
 
+import { ContactInfoModule } from './contact-info/contact-info.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -42,6 +44,7 @@ import { PaymentsModule } from './payments/payments.module';
     PaymentMethodsModule,
     DebtsModule,
     PaymentsModule,
+    ContactInfoModule,
   ],
   controllers: [AppController],
   providers: [AppService],
