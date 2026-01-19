@@ -6,18 +6,18 @@ import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('contact-info')
 @Controller('contact-info')
-@ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
 export class ContactInfoController {
   constructor(private readonly service: ContactInfoService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Get contact information' })
+  @ApiOperation({ summary: 'Get contact information (Public)' })
   getContactInfo() {
     return this.service.getContactInfo();
   }
 
   @Post()
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Update contact information' })
   updateContactInfo(@Body() createDto: CreateContactInfoDto) {
     return this.service.updateContactInfo(createDto);
