@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import {
@@ -29,8 +29,8 @@ export class TransactionsController {
 
   @Get()
   @ApiOperation({ summary: 'List all transactions' })
-  findAll() {
-    return this.transactionsService.findAll();
+  findAll(@Query('page') page = 1, @Query('limit') limit = 10) {
+    return this.transactionsService.findAll(Number(page), Number(limit));
   }
 
   @Get(':id')

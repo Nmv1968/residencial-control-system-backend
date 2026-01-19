@@ -53,12 +53,24 @@ export class TransactionsService {
     return transaction;
   }
 
-  async findAll(): Promise<Transaction[]> {
-    return this.transactionModel
-      .find()
-      .populate('unidad')
-      .sort({ fecha: -1 })
-      .exec();
+  async findAll(
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<{ data: Transaction[]; total: number }> {
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.transactionModel
+        .find()
+        .populate('unidad')
+        .sort({ fecha: -1 })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.transactionModel.countDocuments().exec(),
+    ]);
+
+    return { data, total };
   }
 
   async findOne(id: string): Promise<Transaction> {
