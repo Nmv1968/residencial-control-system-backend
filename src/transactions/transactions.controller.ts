@@ -33,6 +33,42 @@ export class TransactionsController {
     return this.transactionsService.findAll(Number(page), Number(limit));
   }
 
+  // Dashboard routes - MUST come before :id routes
+  @Get('dashboard')
+  @ApiOperation({ summary: 'Get monthly dashboard statistics' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns collected, spent, and units in debt.',
+  })
+  getDashboard() {
+    return this.transactionsService.getDashboardSummary();
+  }
+
+  @Get('dashboard/history')
+  @ApiOperation({ summary: 'Get income/expenses history for charts' })
+  getIncomeExpensesHistory() {
+    return this.transactionsService.getIncomeExpensesHistory();
+  }
+
+  @Get('dashboard/occupancy')
+  @ApiOperation({ summary: 'Get occupancy statistics' })
+  getOccupancyStats() {
+    return this.transactionsService.getOccupancyStats();
+  }
+
+  @Get('dashboard/activity')
+  @ApiOperation({ summary: 'Get recent activity' })
+  getRecentActivity() {
+    return this.transactionsService.getRecentActivity();
+  }
+
+  @Get('statement')
+  @ApiOperation({ summary: 'Get account statement for a unit by year' })
+  getAccountStatement(@Body() body: { unitId: string; year: number }) {
+    return this.transactionsService.getAccountStatement(body.unitId, body.year);
+  }
+
+  // Parameterized routes - MUST come after specific routes
   @Get(':id')
   @ApiOperation({ summary: 'Get transaction by id' })
   findOne(@Param('id') id: string) {
@@ -45,21 +81,5 @@ export class TransactionsController {
   @ApiOperation({ summary: 'Reverse a transaction' })
   reverse(@Param('id') id: string) {
     return this.transactionsService.reverse(id);
-  }
-
-  @Get('dashboard')
-  @ApiOperation({ summary: 'Get monthly dashboard statistics' })
-  @ApiResponse({
-    status: 200,
-    description: 'Returns collected, spent, and units in debt.',
-  })
-  getDashboard() {
-    return this.transactionsService.getDashboardSummary();
-  }
-
-  @Get('statement')
-  @ApiOperation({ summary: 'Get account statement for a unit by year' })
-  getAccountStatement(@Body() body: { unitId: string; year: number }) {
-    return this.transactionsService.getAccountStatement(body.unitId, body.year);
   }
 }
