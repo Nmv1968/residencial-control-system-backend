@@ -42,6 +42,10 @@ export class CreatePaymentMethodDto {
   @IsString()
   @IsOptional()
   additionalData?: string;
+
+  @IsString()
+  @IsOptional()
+  comentario?: string;
 }
 
 export class UpdatePaymentMethodDto extends CreatePaymentMethodDto {}

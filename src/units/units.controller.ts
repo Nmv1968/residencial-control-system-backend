@@ -11,6 +11,7 @@ import {
 import { UnitsService } from './units.service';
 import { CreateUnitDto } from './dto/create-unit.dto';
 import { UpdateUnitDto } from './dto/update-unit.dto';
+import { FilterUnitsDto } from './dto/filter-units.dto';
 import {
   ApiTags,
   ApiOperation,
@@ -38,10 +39,19 @@ export class UnitsController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all units (paginated)' })
-  @ApiResponse({ status: 200, description: 'Return paginated units.' })
-  findAll(@Query('page') page: number = 1, @Query('limit') limit: number = 10) {
-    return this.unitsService.findAll(Number(page), Number(limit));
+  @ApiOperation({
+    summary: 'Get all units with optional filters and pagination',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Return filtered and paginated units.',
+  })
+  findAll(
+    @Query() filters: FilterUnitsDto,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ) {
+    return this.unitsService.findAll(filters, Number(page), Number(limit));
   }
 
   @Get(':id')

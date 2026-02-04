@@ -8,6 +8,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateUnitDto } from './dto/create-unit.dto';
 import { UpdateUnitDto } from './dto/update-unit.dto';
+import { FilterUnitsDto } from './dto/filter-units.dto';
 import { Unit, UnitDocument } from './schemas/unit.schema';
 
 @Injectable()
@@ -46,14 +47,44 @@ export class UnitsService implements OnModuleInit {
   }
 
   async findAll(
+    filters: FilterUnitsDto,
     page: number = 1,
     limit: number = 10,
   ): Promise<{ data: Unit[]; total: number; page: number; lastPage: number }> {
     const skip = (page - 1) * limit;
 
+    // Build dynamic query based on filters
+    const query: any = {};
+
+    // Number filter (partial match, case-insensitive)
+    if (filters.number) {
+      query.number = { $regex: filters.number, $options: 'i' };
+    }
+
+    // Category filter (exact match)
+    if (filters.categoryId) {
+      query.category = filters.categoryId;
+    }
+
+    // Status filter (exact match)
+    if (filters.status) {
+      query.status = filters.status;
+    }
+
+    // Pending balance filter
+    if (filters.hasPendingBalance !== undefined) {
+      query.balance = filters.hasPendingBalance ? { $gt: 0 } : { $lte: 0 };
+    }
+
     const [data, total] = await Promise.all([
-      this.unitModel.find().populate('category').skip(skip).limit(limit).exec(),
-      this.unitModel.countDocuments().exec(),
+      this.unitModel
+        .find(query)
+        .populate('category')
+        .sort({ number: 1 })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.unitModel.countDocuments(query).exec(),
     ]);
 
     return {

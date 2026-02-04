@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
+import { FilterTransactionsDto } from './dto/filter-transactions.dto';
 import {
   ApiTags,
   ApiOperation,
@@ -28,9 +29,19 @@ export class TransactionsController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'List all transactions' })
-  findAll(@Query('page') page = 1, @Query('limit') limit = 10) {
-    return this.transactionsService.findAll(Number(page), Number(limit));
+  @ApiOperation({
+    summary: 'List all transactions with optional filters and pagination',
+  })
+  findAll(
+    @Query() filters: FilterTransactionsDto,
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+  ) {
+    return this.transactionsService.findAll(
+      filters,
+      Number(page),
+      Number(limit),
+    );
   }
 
   // Dashboard routes - MUST come before :id routes

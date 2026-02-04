@@ -3,6 +3,7 @@ import { Cron } from '@nestjs/schedule';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
+import { FilterTransactionsDto } from './dto/filter-transactions.dto';
 import {
   Transaction,
   TransactionDocument,
@@ -54,20 +55,58 @@ export class TransactionsService {
   }
 
   async findAll(
+    filters: FilterTransactionsDto,
     page: number = 1,
     limit: number = 10,
   ): Promise<{ data: Transaction[]; total: number }> {
     const skip = (page - 1) * limit;
 
+    // Build dynamic query based on filters
+    const query: any = {};
+
+    // Date range filter
+    if (filters.startDate || filters.endDate) {
+      query.fecha = {};
+      if (filters.startDate) {
+        query.fecha.$gte = new Date(filters.startDate);
+      }
+      if (filters.endDate) {
+        // Include entire end date (up to 23:59:59.999)
+        const endDate = new Date(filters.endDate);
+        endDate.setHours(23, 59, 59, 999);
+        query.fecha.$lte = endDate;
+      }
+    }
+
+    // Type filter
+    if (filters.tipo) {
+      query.tipo = filters.tipo;
+    }
+
+    // Concept filter (search in descripcion field)
+    if (filters.concepto) {
+      query.descripcion = { $regex: filters.concepto, $options: 'i' };
+    }
+
+    // Unit/Housing filter
+    if (filters.unitId) {
+      query.unidad = filters.unitId;
+    }
+
+    // Reversal status filter
+    if (filters.isReversed !== undefined) {
+      query.isReversed = filters.isReversed;
+    }
+
     const [data, total] = await Promise.all([
       this.transactionModel
-        .find()
+        .find(query)
         .populate('unidad')
         .sort({ fecha: -1 })
         .skip(skip)
         .limit(limit)
         .exec(),
-      this.transactionModel.countDocuments().exec(),
+      this.transactionModel.countDocuments(query).exec(),
     ]);
 
     return { data, total };

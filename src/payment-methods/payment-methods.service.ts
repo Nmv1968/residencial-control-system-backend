@@ -20,6 +20,14 @@ export class PaymentMethodsService {
     return created.save();
   }
 
+  async findActiveForPublic(): Promise<PaymentMethod[]> {
+    return this.paymentMethodModel
+      .find({ isActive: true })
+      .select('-__v')
+      .sort({ name: 1 })
+      .exec();
+  }
+
   async findAll(): Promise<PaymentMethod[]> {
     return this.paymentMethodModel.find().exec();
   }

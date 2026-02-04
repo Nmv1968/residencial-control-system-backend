@@ -32,6 +32,9 @@ export class PaymentMethod {
 
   @Prop()
   additionalData?: string;
+
+  @Prop()
+  comentario?: string;
 }
 
 export const PaymentMethodSchema = SchemaFactory.createForClass(PaymentMethod);
