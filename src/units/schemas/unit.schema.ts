@@ -4,12 +4,6 @@ import { Category } from '../../categories/schemas/category.schema';
 
 export type UnitDocument = Unit & Document;
 
-export enum UnitStatus {
-  OCCUPIED = 'OCCUPIED',
-  VACANT = 'VACANT',
-  MAINTENANCE = 'MAINTENANCE',
-}
-
 @Schema({
   timestamps: true,
   toJSON: { virtuals: true },
@@ -24,9 +18,6 @@ export class Unit {
 
   @Prop()
   phone: string;
-
-  @Prop({ required: true, enum: UnitStatus, default: UnitStatus.OCCUPIED })
-  status: UnitStatus;
 
   @Prop({ default: 0 })
   balance: number;

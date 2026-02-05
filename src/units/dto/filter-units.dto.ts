@@ -11,15 +11,6 @@ export class FilterUnitsDto {
   categoryId?: string;
 
   @IsOptional()
-  @IsEnum(['OCCUPIED', 'VACANT', 'MAINTENANCE'])
-  status?: string;
-
-  @IsOptional()
-  @Transform(({ value }) => {
-    if (value === 'true') return true;
-    if (value === 'false') return false;
-    return value;
-  })
-  @IsBoolean()
-  hasPendingBalance?: boolean;
+  @IsEnum(['DEBTOR', 'SOLVENT'])
+  financialStatus?: string;
 }

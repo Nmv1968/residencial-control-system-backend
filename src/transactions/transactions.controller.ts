@@ -57,14 +57,14 @@ export class TransactionsController {
 
   @Get('dashboard/history')
   @ApiOperation({ summary: 'Get income/expenses history for charts' })
-  getIncomeExpensesHistory() {
-    return this.transactionsService.getIncomeExpensesHistory();
+  getIncomeExpensesHistory(@Query('months') months: number = 6) {
+    return this.transactionsService.getIncomeExpensesHistory(Number(months));
   }
 
-  @Get('dashboard/occupancy')
-  @ApiOperation({ summary: 'Get occupancy statistics' })
-  getOccupancyStats() {
-    return this.transactionsService.getOccupancyStats();
+  @Get('dashboard/financial-status')
+  @ApiOperation({ summary: 'Get financial stats (debtors vs solvent)' })
+  getFinancialStats() {
+    return this.transactionsService.getFinancialStats();
   }
 
   @Get('dashboard/activity')
