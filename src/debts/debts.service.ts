@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types, isValidObjectId } from 'mongoose';
 import { Debt, DebtDocument, DebtStatus } from './schemas/debt.schema';
 import { CreateDebtDto } from './dto/create-debt.dto';
-import { Unit, UnitDocument, UnitStatus } from '../units/schemas/unit.schema';
+import { Unit, UnitDocument } from '../units/schemas/unit.schema';
 import {
   Category,
   CategoryDocument,
@@ -53,7 +53,7 @@ export class DebtsService {
     let units: UnitDocument[] = [];
 
     if (payload.scope === 'ALL') {
-      units = await this.unitModel.find({ status: UnitStatus.OCCUPIED }).exec();
+      units = await this.unitModel.find({}).exec();
     } else if (payload.scope === 'CATEGORY' && payload.targetId) {
       // Validate that targetId is a valid ObjectId
       if (!isValidObjectId(payload.targetId)) {
@@ -79,7 +79,6 @@ export class DebtsService {
       units = await this.unitModel
         .find({
           category: new Types.ObjectId(payload.targetId),
-          status: UnitStatus.OCCUPIED,
         })
         .exec();
     } else if (payload.scope === 'SINGLE' && payload.targetId) {

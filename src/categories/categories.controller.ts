@@ -16,30 +16,34 @@ import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('categories')
 @Controller('categories')
-@ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Post()
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Create a new category' })
   create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoriesService.create(createCategoryDto);
   }
 
   @Get()
-  @ApiOperation({ summary: 'List all categories' })
+  @ApiOperation({ summary: 'List all categories (Public)' })
   findAll() {
     return this.categoriesService.findAll();
   }
 
   @Get(':id')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Get category by id' })
   findOne(@Param('id') id: string) {
     return this.categoriesService.findOne(id);
   }
 
   @Patch(':id')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Update category' })
   update(
     @Param('id') id: string,
@@ -49,6 +53,8 @@ export class CategoriesController {
   }
 
   @Delete(':id')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Delete category' })
   remove(@Param('id') id: string) {
     return this.categoriesService.remove(id);

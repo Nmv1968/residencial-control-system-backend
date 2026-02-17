@@ -272,14 +272,14 @@ export class TransactionsService {
     };
   }
 
-  async getIncomeExpensesHistory() {
+  async getIncomeExpensesHistory(months: number = 6) {
     const now = new Date();
     const labels: string[] = [];
     const income: number[] = [];
     const expenses: number[] = [];
 
-    // Get last 6 months
-    for (let i = 5; i >= 0; i--) {
+    // Get last X months
+    for (let i = months - 1; i >= 0; i--) {
       const month = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const startOfMonth = new Date(
         month.getFullYear(),
@@ -346,20 +346,20 @@ export class TransactionsService {
     return { labels, income, expenses };
   }
 
-  async getOccupancyStats() {
-    const occupied = await this.unitModel
-      .countDocuments({ status: 'OCCUPIED' })
+  async getFinancialStats() {
+    const debtors = await this.unitModel
+      .countDocuments({ balance: { $gt: 0 } })
       .exec();
-    const vacant = await this.unitModel
-      .countDocuments({ status: 'VACANT' })
+    const solvent = await this.unitModel
+      .countDocuments({ balance: { $lte: 0 } })
       .exec();
     const total = await this.unitModel.countDocuments().exec();
 
     return {
-      labels: ['Ocupadas', 'Vacías'],
-      data: [occupied, vacant],
+      labels: ['Deudores', 'Al día'],
+      data: [debtors, solvent],
       total,
-      occupancyRate: total > 0 ? Math.round((occupied / total) * 100) : 0,
+      debtorRate: total > 0 ? Math.round((debtors / total) * 100) : 0,
     };
   }
 

@@ -66,14 +66,13 @@ export class UnitsService implements OnModuleInit {
       query.category = filters.categoryId;
     }
 
-    // Status filter (exact match)
-    if (filters.status) {
-      query.status = filters.status;
-    }
-
-    // Pending balance filter
-    if (filters.hasPendingBalance !== undefined) {
-      query.balance = filters.hasPendingBalance ? { $gt: 0 } : { $lte: 0 };
+    // Financial Status filter
+    if (filters.financialStatus) {
+      if (filters.financialStatus === 'DEBTOR') {
+        query.balance = { $gt: 0 };
+      } else if (filters.financialStatus === 'SOLVENT') {
+        query.balance = { $lte: 0 };
+      }
     }
 
     const [data, total] = await Promise.all([
