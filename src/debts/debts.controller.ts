@@ -8,7 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { DebtsService } from './debts.service';
-import { CreateDebtDto } from './dto/create-debt.dto';
+import { CreateDebtDto, GenerateBulkDebtDto } from './dto/create-debt.dto';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -29,8 +29,7 @@ export class DebtsController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Generate debts in bulk' })
-  generateBulk(@Body() body: any) {
-    // Define DTO strictly if needed
+  generateBulk(@Body() body: GenerateBulkDebtDto) {
     return this.debtsService.generateBulk(body);
   }
 

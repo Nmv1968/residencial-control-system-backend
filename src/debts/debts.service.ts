@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model, Types, isValidObjectId } from 'mongoose';
 import { Debt, DebtDocument, DebtStatus } from './schemas/debt.schema';
 import { CreateDebtDto } from './dto/create-debt.dto';
 import { Unit, UnitDocument, UnitStatus } from '../units/schemas/unit.schema';
@@ -55,6 +55,27 @@ export class DebtsService {
     if (payload.scope === 'ALL') {
       units = await this.unitModel.find({ status: UnitStatus.OCCUPIED }).exec();
     } else if (payload.scope === 'CATEGORY' && payload.targetId) {
+      // Validate that targetId is a valid ObjectId
+      if (!isValidObjectId(payload.targetId)) {
+        return {
+          count: 0,
+          message: 'No se encontraron unidades para el ámbito especificado.',
+        };
+      }
+
+      // Verify that the category exists
+      const category = await this.categoryModel
+        .findById(new Types.ObjectId(payload.targetId))
+        .exec();
+
+      if (!category) {
+        return {
+          count: 0,
+          message: 'No se encontraron unidades para el ámbito especificado.',
+        };
+      }
+
+      // Find units with this category
       units = await this.unitModel
         .find({
           category: new Types.ObjectId(payload.targetId),
@@ -62,6 +83,14 @@ export class DebtsService {
         })
         .exec();
     } else if (payload.scope === 'SINGLE' && payload.targetId) {
+      // Validate that targetId is a valid ObjectId
+      if (!isValidObjectId(payload.targetId)) {
+        return {
+          count: 0,
+          message: 'No se encontraron unidades para el ámbito especificado.',
+        };
+      }
+
       const unit = await this.unitModel
         .findById(new Types.ObjectId(payload.targetId))
         .exec();
@@ -69,7 +98,10 @@ export class DebtsService {
     }
 
     if (units.length === 0) {
-      return { count: 0, message: 'No units found for the specified scope.' };
+      return {
+        count: 0,
+        message: 'No se encontraron unidades para el ámbito especificado.',
+      };
     }
 
     // Create Debts for all units
@@ -92,7 +124,7 @@ export class DebtsService {
 
     return {
       count: units.length,
-      message: `Successfully generated debts for ${units.length} units.`,
+      message: `Se generaron exitosamente deudas para ${units.length} unidades.`,
     };
   }
 
