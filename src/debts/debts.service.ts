@@ -75,10 +75,13 @@ export class DebtsService {
         };
       }
 
-      // Find units with this category
+      // Find units with this category (search both as ObjectId and string for compatibility)
       units = await this.unitModel
         .find({
-          category: new Types.ObjectId(payload.targetId),
+          $or: [
+            { category: new Types.ObjectId(payload.targetId) },
+            { category: payload.targetId },
+          ],
         })
         .exec();
     } else if (payload.scope === 'SINGLE' && payload.targetId) {
